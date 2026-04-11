@@ -1,0 +1,13 @@
+{
+  "name": "@agent-space/shared",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./index.js",
+  "types": "./types.ts",
+  "exports": {
+    ".": {
+      "types": "./types.ts",
+      "default": "./index.js"
+    }
+  }
+}
