@@ -6,6 +6,8 @@ import { Starfield }      from './Starfield';
 import { CrtPipeline }    from './CrtPipeline';
 import { ShipRenderer }    from './ShipRenderer';
 import { ZoneAnimations }  from './ZoneAnimations';
+import { TilesetGenerator } from './TilesetGenerator';
+import { ShipTilemap }      from './ShipTilemap';
 import { MAP_COLS, MAP_ROWS } from './mapData';
 import { config }         from '../config';
 import { WsClient }       from '../ws/WsClient';
@@ -20,6 +22,7 @@ export class GameScene extends Phaser.Scene {
 
   preload() {
     new TextureFactory(this).createAll();
+    TilesetGenerator.generate(this);
   }
 
   create() {
@@ -35,6 +38,7 @@ export class GameScene extends Phaser.Scene {
 
     // ── Ship ────────────────────────────────────────────────────────────
     new ShipRenderer(this);
+    new ShipTilemap(this);
     new ZoneAnimations(this);
 
     // ── WebSocket ───────────────────────────────────────────────────────
