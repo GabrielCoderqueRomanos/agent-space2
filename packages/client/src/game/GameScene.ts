@@ -8,6 +8,7 @@ import { ShipRenderer }    from './ShipRenderer';
 import { ZoneAnimations }  from './ZoneAnimations';
 import { TilesetGenerator } from './TilesetGenerator';
 import { ShipTilemap }      from './ShipTilemap';
+import { RoomDecorations }  from './RoomDecorations';
 import { MAP_COLS, MAP_ROWS } from './mapData';
 import { config }         from '../config';
 import { WsClient }       from '../ws/WsClient';
@@ -39,6 +40,7 @@ export class GameScene extends Phaser.Scene {
     // ── Ship ────────────────────────────────────────────────────────────
     new ShipRenderer(this);
     new ShipTilemap(this);
+    new RoomDecorations(this);
     new ZoneAnimations(this);
 
     // ── WebSocket ───────────────────────────────────────────────────────

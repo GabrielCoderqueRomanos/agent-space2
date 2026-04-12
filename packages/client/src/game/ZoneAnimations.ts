@@ -23,11 +23,13 @@ export class ZoneAnimations {
   private animateBridge(scene: Phaser.Scene) {
     const z  = ZONES.bridge;
     const px = z.x * S, py = z.y * S, pw = z.w * S, ph = z.h * S;
+    // Interior bounds (inside walls)
+    const ix = px + S, iy = py + S, iw = pw - 2 * S, ih = ph - 2 * S;
 
-    // ── Radar unit (bottom-right corner) ─────────────────────────────────
-    const rCX = px + pw - 2.5 * S;
-    const rCY = py + ph - 2.5 * S;
-    const rR  = 1.5 * S;
+    // ── Radar unit (bottom-right corner of interior) ──────────────────────
+    const rCX = ix + iw - S * 1.8;
+    const rCY = iy + ih - S * 1.8;
+    const rR  = S * 1.4;
 
     // Background rings + crosshair
     const radarBg = scene.add.graphics().setDepth(5);
@@ -71,11 +73,11 @@ export class ZoneAnimations {
       });
     }
 
-    // ── Main viewscreen — animated waveform ──────────────────────────────
-    const vsX = px + 2 * S;
-    const vsY = py + S + 2;
-    const vsW = pw - 4 * S;
-    const vsH = S + 6;
+    // ── Main viewscreen — animated waveform (over RoomDecorations screen) ──
+    const vsX = ix;
+    const vsY = iy - 4;
+    const vsW = iw;
+    const vsH = S + 8;
 
     const vsGfx  = scene.add.graphics().setDepth(7);
     let   vsPhase = 0;
@@ -119,16 +121,18 @@ export class ZoneAnimations {
     }
 
     // ── Console bank — independently blinking status LEDs ────────────────
+    // Positioned across all 5 crew stations (over RoomDecorations consoles)
     const ledColors = [0x00ff88, 0x22aaff, 0xffaa00, 0x22aaff, 0x00ff88,
-                       0xff3344, 0x22aaff, 0xffaa00, 0x00ff88, 0x22aaff];
+                       0xff3344, 0x22aaff, 0xffaa00, 0x00ff88, 0x22aaff,
+                       0x00ff88, 0xff3344, 0x22aaff, 0xffaa00, 0x00ff88];
 
     for (let i = 0; i < ledColors.length; i++) {
-      const dx = px + 2 * S + i * 14;
+      const dx = ix + 8 + i * Math.floor(iw / ledColors.length);
       const dot = scene.add.graphics().setDepth(7);
       dot.fillStyle(ledColors[i], 1);
-      dot.fillRect(dx, py + 3 * S + 2, 7, 5);
+      dot.fillRect(dx, iy + S + 16, 7, 4);
       dot.fillStyle(0xffffff, 0.4);
-      dot.fillRect(dx + 1, py + 3 * S + 2, 2, 1);
+      dot.fillRect(dx + 1, iy + S + 16, 2, 1);
 
       scene.tweens.add({
         targets:     dot,
@@ -142,12 +146,12 @@ export class ZoneAnimations {
       });
     }
 
-    // Second console row
-    for (let i = 0; i < 7; i++) {
-      const dx = px + 2 * S + 7 + i * 18;
+    // Second console row (rear stations)
+    for (let i = 0; i < 10; i++) {
+      const dx = ix + 12 + i * Math.floor(iw / 11);
       const dot = scene.add.graphics().setDepth(7);
       dot.fillStyle(ledColors[(i + 3) % ledColors.length], 0.8);
-      dot.fillRect(dx, py + 4 * S + 10, 12, 4);
+      dot.fillRect(dx, iy + ih - S + 8, 10, 4);
       scene.tweens.add({
         targets:     dot,
         alpha:       { from: 0.8, to: 0.1 },
@@ -159,36 +163,35 @@ export class ZoneAnimations {
       });
     }
 
-    // ── Holographic data column (left side of bridge) ─────────────────────
-    const holoX = px + S + 2;
-    const holoGfx = scene.add.graphics().setDepth(7);
-
-    scene.time.addEvent({
-      delay:    600,
-      loop:     true,
-      callback: () => {
-        holoGfx.clear();
-        holoGfx.lineStyle(1, 0x22aaff, 0.5);
-        for (let row = 0; row < 8; row++) {
-          const y  = py + S + 4 + row * 6;
-          const w  = 10 + Math.floor(Math.random() * (3 * S - 20));
-          const x2 = holoX + w;
-          if (Math.random() > 0.25) {
-            holoGfx.lineBetween(holoX, y, x2, y);
+    // ── Holographic data streams (left and right side panels) ────────────
+    for (const [holoX, dir] of [[ix + 4, 1], [ix + iw - S + 4, -1]] as [number, number][]) {
+      const holoGfx = scene.add.graphics().setDepth(7);
+      scene.time.addEvent({
+        delay:    500 + Math.random() * 200,
+        loop:     true,
+        callback: () => {
+          holoGfx.clear();
+          holoGfx.lineStyle(1, 0x22aaff, 0.5);
+          for (let row = 0; row < 10; row++) {
+            const y  = iy + 4 + row * 6;
+            const w  = 10 + Math.floor(Math.random() * (S * 0.8));
+            const x2 = holoX + w * dir;
+            if (Math.random() > 0.2) {
+              holoGfx.lineBetween(holoX, y, x2, y);
+            }
+            if (Math.random() > 0.7) {
+              holoGfx.fillStyle(0x44ddff, 0.9);
+              holoGfx.fillRect(x2 - 1, y - 1, 3, 3);
+            }
           }
-          // Occasional bright node
-          if (Math.random() > 0.7) {
-            holoGfx.fillStyle(0x44ddff, 0.9);
-            holoGfx.fillRect(x2 - 2, y - 1, 3, 3);
-          }
-        }
-      },
-    });
+        },
+      });
+    }
 
     // ── Ambient room tint pulse ──────────────────────────────────────────
     const ambBridge = scene.add.graphics().setDepth(2);
     ambBridge.fillStyle(0x1a4a90, 0.04);
-    ambBridge.fillRect(px + S, py + S, pw - 2 * S, ph - 2 * S);
+    ambBridge.fillRect(ix, iy, iw, ih);
     scene.tweens.add({
       targets:  ambBridge,
       alpha:    { from: 0.5, to: 1 },

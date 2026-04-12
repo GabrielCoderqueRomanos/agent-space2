@@ -121,17 +121,17 @@ function buildGrid(): CellType[][] {
     Array(MAP_COLS).fill(C.SPACE),
   );
 
-  // Mark hull interior (ship bounding box: cols 6–29, rows 3–27)
-  for (let r = 3; r < 28; r++) {
+  // Mark hull interior (ship bounding box: cols 6–29, rows 3–29)
+  for (let r = 3; r < 30; r++) {
     for (let c = 6; c < 30; c++) {
       grid[r][c] = C.HULL;
     }
   }
-  // Left nacelle
+  // Left nacelle (rows 12–21)
   for (let r = 12; r < 22; r++) {
     for (let c = 1; c < 6; c++) grid[r][c] = C.HULL;
   }
-  // Right nacelle
+  // Right nacelle (rows 12–21)
   for (let r = 12; r < 22; r++) {
     for (let c = 30; c < 35; c++) grid[r][c] = C.HULL;
   }
