@@ -77,7 +77,8 @@ export class ShipTilemap {
         const cell = grid[row][col];
 
         // ── Floor layer ──────────────────────────────────────────────────
-        if (cell !== C.WALL) {
+        // Skip SPACE cells — leave transparent so starfield shows through
+        if (cell !== C.WALL && cell !== C.SPACE) {
           const variants = FLOOR_TILES[cell] ?? [T.VOID];
           const variant  = variants[Math.floor(rng() * variants.length)];
           floorLayer.putTileAt(variant, col, row);
