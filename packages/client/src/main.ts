@@ -3,7 +3,7 @@ import { GameScene } from './game/GameScene';
 import { Hud } from './hud/Hud';
 import './hud/hud.css';
 
-const HUD_WIDTH = 280;
+const HUD_WIDTH = 340;
 
 const game = new Phaser.Game({
   type: Phaser.WEBGL,

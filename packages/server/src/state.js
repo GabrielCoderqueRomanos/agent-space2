@@ -27,7 +27,7 @@ export function awakeCount() {
  * @returns {{ state: import('@agent-space/shared').AgentState, wsEvent: string } | { error: string, code: number }}
  */
 export function applyEvent(event, maxAwake) {
-  const { agentId, name, status, task, timestamp } = event;
+  const { agentId, name, status, task, timestamp, currentTool, currentFile, lastActivity } = event;
   const zone = STATUS_TO_ZONE[status];
   const existing = agents.get(agentId);
 
@@ -49,6 +49,9 @@ export function applyEvent(event, maxAwake) {
       zone,
       isAwake: status !== 'done',
       spawnCount: isReawakening ? existing.spawnCount + 1 : existing.spawnCount,
+      currentTool: currentTool ?? existing.currentTool,
+      currentFile: currentFile ?? existing.currentFile,
+      lastActivity: lastActivity ?? existing.lastActivity,
     };
 
     agents.set(agentId, updated);
@@ -69,6 +72,9 @@ export function applyEvent(event, maxAwake) {
     zone,
     isAwake: status !== 'done',
     spawnCount: 0,
+    currentTool,
+    currentFile,
+    lastActivity,
   };
 
   agents.set(agentId, newAgent);
